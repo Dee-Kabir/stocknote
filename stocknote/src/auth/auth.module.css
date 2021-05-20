@@ -1,0 +1,15 @@
+@media (max-width: 576px){
+    .registerinfo {
+        display: none;
+    }
+    
+}
+.registerinfo_point {
+    display: flex;
+    margin-left: 24px;
+    margin-top: 24px;
+}
+.registerinfo_point_content{
+    display: flex;
+    flex-direction: column;
+}
