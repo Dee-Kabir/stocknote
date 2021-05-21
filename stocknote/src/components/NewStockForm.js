@@ -9,8 +9,9 @@ import {
   import { Col, Image } from "antd";
   import Notes from "./Notes";
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 const NewStockForm = (props) => {
-    const {setLevel,show,showResistances,showSupports,name,cmp,support,resistance,bodyWeekly,bodyDaily,weeklyPreview,dailyPreview,handleChange,handleClick,handleBody,handlePreview,handleLevels} = props;
+    const {setLevel,show,showResistances,loading,showSupports,name,cmp,support,resistance,bodyWeekly,bodyDaily,weeklyPreview,dailyPreview,handleChange,handleClick,handleBody,handlePreview,handleLevels} = props;
     const fileInputRef = useRef(null);
     const file2InputRef = useRef(null);
     return (
@@ -155,10 +156,10 @@ const NewStockForm = (props) => {
         </Grid.Row>
         <Divider />
         <Grid.Row textAlign="justified">
-          <Button color="green" size="large" onClick={handleClick}>
+          <Button color="green" loading={loading} disabled={loading} size="large" onClick={handleClick}>
             Save
           </Button>
-          <Button color="orange" size="large">
+          <Button as={Link} to="/my-stocks" color="orange" size="large">
             Cancel
           </Button>
         </Grid.Row>
