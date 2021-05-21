@@ -18,7 +18,8 @@ const NewNotes = () => {
     resistance: "",
     formData: new FormData(),
     show: false,
-    error: ''
+    error: '',
+    loading: false
   });
  
   const [preview, setPreview] = useState({
@@ -34,7 +35,8 @@ const NewNotes = () => {
     supportLevels,
     formData,
     resistanceLevels,
-    error
+    error,
+    loading
   } = value;
   const fetchnotes = (time) => () => {
  
@@ -122,11 +124,13 @@ const NewNotes = () => {
   const handleClick = (e) => {
     e.preventDefault();
     if (name && cmp) {
+      setValue({...value,loading: true})
       let token = JSON.parse(window.localStorage.getItem('auth')).token
       newStock(formData,token).then(data => {
         if(data.error){
           console.log(data.error)
         }else{
+          setValue({...value,loading:false})
           clearlocalstorage()
           window.location.href = "/"
         }
@@ -150,7 +154,7 @@ const NewNotes = () => {
       <div style={{ marginBottom: "16px" }}>
       
 
-      <NewStockForm show={false} setLevel = {setLevel} showResistances = {showResistances} showSupports= {showSupports} name = {name} cmp = {cmp} support = {support} resistance = {resistance} bodyWeekly = {bodyWeekly} bodyDaily = {bodyDaily} weeklyPreview = {weeklyPreview} dailyPreview = {dailyPreview} handleChange = {handleChange} handleClick = {handleClick} handleBody = {handleBody} handlePreview = {handlePreview} handleLevels = {handleLevels} />
+      <NewStockForm loading={loading} show={false} setLevel = {setLevel} showResistances = {showResistances} showSupports= {showSupports} name = {name} cmp = {cmp} support = {support} resistance = {resistance} bodyWeekly = {bodyWeekly} bodyDaily = {bodyDaily} weeklyPreview = {weeklyPreview} dailyPreview = {dailyPreview} handleChange = {handleChange} handleClick = {handleClick} handleBody = {handleBody} handlePreview = {handlePreview} handleLevels = {handleLevels} />
       </div>
       <div>
         <MainFooter />
