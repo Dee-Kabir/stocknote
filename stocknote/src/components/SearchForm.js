@@ -10,12 +10,15 @@ const SearchForm = ({size}) => {
   const [result,setResult] = useState([]);
   const [source,setSource] = useState('');
   const [value,setValue] = useState('');
+  const [load,setLoad] = useState(false);
   useEffect(()=>{
       const ac =new AbortController()
     let token = JSON.parse(window.localStorage.getItem('auth')).token
     loadSource(token)
+    console.log("laod")
     return () => ac.abort();
-  },[])
+  },[load])
+  
   const loadSource = (token) => {
     searchList(token).then(data => {
       if(data.error){
@@ -55,6 +58,7 @@ const SearchForm = ({size}) => {
     onResultSelect={(e,data) => {setValue(data.result.title)
     handleResultSelect()
     }}
+    onFocus={() => setLoad(true)}
     results={result}
     resultRenderer = {resultRenderer}
     value={value}
