@@ -47,3 +47,12 @@ export const update = async (data,token,id) => {
     }).then(response => response.json())
     .catch(err => console.log(err)) 
 } 
+export const removestock = async(id,token) => {
+    return fetch(`${API}/delete/${id}`,{
+        method: "DELETE",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+    }).then(response => response.json())
+    .catch(err => console.log(err)) 
+}
