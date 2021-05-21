@@ -178,7 +178,7 @@ const Register = () => {
               }}
             >
               {" "}
-              Already a user? <Link to="/login">Login</Link>
+              Already a user? <Link to="/login" style={{color: 'aliceblue'}}>Login</Link>
             </Message>
             {message ? (
               <Message success={message?true:false}>{message}</Message>

@@ -142,7 +142,7 @@ const Login = () => {
               }}
             >
               {" "}
-              Not registered yet? <Link to="/register">Register</Link>
+              Not registered yet? <Link to="/register" style={{color: 'aliceblue'}}>Register</Link>
             </Message>
             {error ? (
               <Message error={error ? true : false}>{error}</Message>
