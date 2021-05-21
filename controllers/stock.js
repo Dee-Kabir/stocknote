@@ -198,3 +198,24 @@ exports.update = async (req, res) => {
     }
   });
 };
+exports.removestock = async (req,res) => {
+  Stock.findByIdAndRemove(req.params.id).exec((error,data) => {
+    if(error){
+        return res.status(400).json({
+            error: error
+        })
+    }
+    User.findById(req.user._id)
+    .populate("stocks", "name cmp updatedAt _id title")
+    .select("stocks")
+    .exec((error, data) => {
+      if (error) {
+        return res.status(400).json({
+          error: "Try Again!!",
+        });
+      } else {
+        res.json(data);
+      }
+    });
+})
+}
