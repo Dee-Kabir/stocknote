@@ -3,34 +3,52 @@ import Avatar from "antd/lib/avatar/avatar";
 import { Content } from "antd/lib/layout/layout";
 import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button, Grid, GridColumn, Header, Icon, List, Loader } from "semantic-ui-react";
+import {
+  Button,
+  Grid,
+  GridColumn,
+  Header,
+  Icon,
+  List,
+  Loader,
+} from "semantic-ui-react";
 import { getStock } from "../actions/stock";
 import MainFooter from "../Navigations/MainFooter";
 import MainHeader from "../Navigations/MainHeader";
-import renderHTML from 'react-render-html'
-import {API} from '../Config'
+import renderHTML from "react-render-html";
+import { API } from "../Config";
+import ServiceNotAvailabel from "./errorpage/ServiceNotAvailable";
 const Stock = (props) => {
   const [value, setValue] = useState({
-    stock: '',
-    error: ''
+    stock: "",
+    error: "",
+    loading: false,
   });
-  const { stock, error } = value;
+  const { stock, error, loading } = value;
   useEffect(() => {
     const ac = new AbortController();
     loadStock(props.match.params.stockId);
-    return () => ac.abort()
+    return () => ac.abort();
   }, [props.match.params.stockId]);
 
   const loadStock = async (id) => {
-
-    let token = JSON.parse(window.localStorage.getItem('auth')).token
-    getStock(id,token).then(data => {
-      if(data.error){
-        setValue({...value, error: data.error})
-      }else{
-        setValue({...value,stock: data})
+    let token = JSON.parse(window.localStorage.getItem("auth")).token;
+    setValue({ ...value, loading: true });
+    getStock(id, token).then((data) => {
+      try {
+        if (data.error) {
+          setValue({ ...value, error: data.error, loading: false });
+        } else {
+          setValue({ ...value, stock: data, error: "", loading: false });
+        }
+      } catch {
+        setValue({
+          ...value,
+          error: "Error While Connecting to server.",
+          loading: false,
+        });
       }
-    })
+    });
   };
 
   return stock ? (
@@ -61,9 +79,10 @@ const Stock = (props) => {
                 width: "100px",
               }}
             >
-              {stock.supportLevels && stock.supportLevels.map((sup, i) => (
-                <List.Item key={i}>{sup}</List.Item>
-              ))}
+              {stock.supportLevels &&
+                stock.supportLevels.map((sup, i) => (
+                  <List.Item key={i}>{sup}</List.Item>
+                ))}
             </ul>
           </div>
           <div>
@@ -76,39 +95,61 @@ const Stock = (props) => {
                 width: "100px",
               }}
             >
-              {stock.resistanceLevels && stock.resistanceLevels.map((sup, i) => (
-                <List.Item key={i}>{sup}</List.Item>
-              ))}
+              {stock.resistanceLevels &&
+                stock.resistanceLevels.map((sup, i) => (
+                  <List.Item key={i}>{sup}</List.Item>
+                ))}
             </ul>
           </div>
         </div>
         <Grid>
-        <Grid.Row>
-            <GridColumn width='10'>
-            <h3 style={{fontWeight: '600'}}>Weekly Analysis</h3>
-            <Content id="stock_content" style={{width: '100%'}}>{renderHTML(stock.weekly)}</Content>
+          <Grid.Row>
+            <GridColumn width="10">
+              <h3 style={{ fontWeight: "600" }}>Weekly Analysis</h3>
+              <Content id="stock_content" style={{ width: "100%" }}>
+                {stock.weekly && renderHTML(stock.weekly)}
+              </Content>
             </GridColumn>
-            <GridColumn width='6'>
-            <Image src={stock.weeklyShot ? `${API}/photow/${stock._id}` :"https://via.placeholder.com/300.png/09f/fff"} />
+            <GridColumn width="6">
+              <Image
+                src={
+                  stock.weeklyShot
+                    ? `${API}/photow/${stock._id}`
+                    : "https://via.placeholder.com/300.png/09f/fff"
+                }
+              />
             </GridColumn>
-        </Grid.Row>
-        <Grid.Row>
-            <GridColumn width='10'>
-            <h3 style={{fontWeight: '600'}}>Daily Analysis</h3>
-            <Content>{renderHTML(stock.daily)}</Content>
+          </Grid.Row>
+          <Grid.Row>
+            <GridColumn width="10">
+              <h3 style={{ fontWeight: "600" }}>Daily Analysis</h3>
+              <Content>{stock.daily && renderHTML(stock.daily)}</Content>
             </GridColumn>
-            <GridColumn width='6'>
-            <Image src={stock.dailyShot ? `${API}/photod/${stock._id}` : "https://via.placeholder.com/300.png/09f/fff"} />
-            </GridColumn>  
-        </Grid.Row>
+            <GridColumn width="6">
+              <Image
+                src={
+                  stock.dailyShot
+                    ? `${API}/photod/${stock._id}`
+                    : "https://via.placeholder.com/300.png/09f/fff"
+                }
+              />
+            </GridColumn>
+          </Grid.Row>
         </Grid>
 
-        <Button as={Link}  to={{pathname : `/edit/${stock._id}`,state: stock}} color="vk"><Icon name="edit" />Edit</Button>
+        <Button
+          as={Link}
+          to={{ pathname: `/edit/${stock._id}`, state: stock }}
+          color="vk"
+        >
+          <Icon name="edit" />
+          Edit
+        </Button>
       </div>
       <MainFooter />
     </Fragment>
   ) : (
-    <Loader size="huge" />
+    <ServiceNotAvailabel />
   );
 };
 export default Stock;

@@ -8,50 +8,71 @@ exports.create = async (req, res) => {
   let form = formidable.IncomingForm();
   form.keepExtensions = true;
   try {
-    form.parse(req, (err, fields, files) => {
+    form.parse(req, async (err, fields, files) => {
       console.log(fields);
       if (err) {
         return res.status(400).json({
           error: "Try Again",
         });
       }
-
-      let stock = new Stock(fields);
-      let arrayofResistance =
-        fields.resistanceLevels && fields.resistanceLevels.split(",");
-      let arrayofSupport =
-        fields.supportLevels && fields.supportLevels.split(",");
-      stock.resistanceLevels = arrayofResistance;
-      stock.supportLevels = arrayofSupport;
-      stock.postedBy = req.user._id;
-      if (files.dailyShot) {
-        stock.dailyShot.data = fs.readFileSync(files.dailyShot.path);
-        stock.dailyShot.contentType = files.dailyShot.type;
-      }
-      if (files.weeklyShot) {
-        stock.weeklyShot.data = fs.readFileSync(files.weeklyShot.path);
-        stock.weeklyShot.contentType = files.weeklyShot.type;
-      }
-      stock.save((err, result) => {
-        if (err) {
-          return res.status(400).json({
-            error: err,
-          });
-        }
-        User.findByIdAndUpdate(
-          req.user._id,
-          {
-            $push: { stocks: result },
-          },
-          {
-            new: true,
+      User.findById(req.user._id)
+        .populate("stocks", "name")
+        .select("stocks")
+        .exec((err, userdata) => {
+          if (err) {
+            console.log(err);
+          } else {
+            let check;
+            userdata.stocks.map((s) => {
+              if (s.name === fields.name) {
+                check = true;
+              }
+            })
+            if(check){
+              return res.json({
+                error: "This stock is already in your stock list",
+              });
+            }else{
+            let stock = new Stock(fields);
+            let arrayofResistance =
+              fields.resistanceLevels && fields.resistanceLevels.split(",");
+            let arrayofSupport =
+              fields.supportLevels && fields.supportLevels.split(",");
+            stock.resistanceLevels = arrayofResistance;
+            stock.supportLevels = arrayofSupport;
+            stock.postedBy = req.user._id;
+            if (files.dailyShot) {
+              stock.dailyShot.data = fs.readFileSync(files.dailyShot.path);
+              stock.dailyShot.contentType = files.dailyShot.type;
+            }
+            if (files.weeklyShot) {
+              stock.weeklyShot.data = fs.readFileSync(files.weeklyShot.path);
+              stock.weeklyShot.contentType = files.weeklyShot.type;
+            }
+            stock.save((err, result) => {
+              if (err) {
+                console.log(err);
+                return res.status(400).json({
+                  error: err,
+                });
+              }
+              User.findByIdAndUpdate(
+                req.user._id,
+                {
+                  $push: { stocks: result },
+                },
+                {
+                  new: true,
+                }
+              ).exec();
+              console.log(result);
+              res.json({
+                message: "Added Successfully",
+              });
+            });
           }
-        ).exec();
-        console.log(result);
-        res.json({
-          message: "Added Successfully",
+        }
         });
-      });
     });
   } catch (err) {
     res.status(400).json({
@@ -164,15 +185,15 @@ exports.update = async (req, res) => {
         // console.log(hotel)
         stock = _.merge(stock, fields);
         let arrayofResistance =
-        fields.resistanceLevels && fields.resistanceLevels.split(",");
-      let arrayofSupport =
-        fields.supportLevels && fields.supportLevels.split(",");
-      if(arrayofResistance){
-        stock.resistanceLevels = arrayofResistance;
-      }
-      if(arrayofSupport){
-        stock.supportLevels = arrayofSupport;
-      }
+          fields.resistanceLevels && fields.resistanceLevels.split(",");
+        let arrayofSupport =
+          fields.supportLevels && fields.supportLevels.split(",");
+        if (arrayofResistance) {
+          stock.resistanceLevels = arrayofResistance;
+        }
+        if (arrayofSupport) {
+          stock.supportLevels = arrayofSupport;
+        }
         if (files.weeklyShot) {
           stock.weeklyShot.contentType = files.weeklyShot.type;
           stock.weeklyShot.data = fs.readFileSync(files.weeklyShot.path);
@@ -199,24 +220,24 @@ exports.update = async (req, res) => {
   });
 };
 
-exports.removestock = async (req,res) => {
-  Stock.findByIdAndRemove(req.params.id).exec((error,data) => {
-    if(error){
-        return res.status(400).json({
-            error: error
-        })
+exports.removestock = async (req, res) => {
+  Stock.findByIdAndRemove(req.params.id).exec((error, data) => {
+    if (error) {
+      return res.status(400).json({
+        error: error,
+      });
     }
     User.findById(req.user._id)
-    .populate("stocks", "name cmp updatedAt _id title")
-    .select("stocks")
-    .exec((error, data) => {
-      if (error) {
-        return res.status(400).json({
-          error: "Try Again!!",
-        });
-      } else {
-        res.json(data);
-      }
-    });
-})
-}
+      .populate("stocks", "name cmp updatedAt _id title")
+      .select("stocks")
+      .exec((error, data) => {
+        if (error) {
+          return res.status(400).json({
+            error: "Try Again!!",
+          });
+        } else {
+          res.json(data);
+        }
+      });
+  });
+};

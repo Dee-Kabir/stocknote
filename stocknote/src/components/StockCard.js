@@ -5,16 +5,18 @@ import moment from "moment";
 import { removestock } from "../actions/stock";
 import { useState } from "react";
 
-
-const StockCard = ({ stock,handleDelete }) => {
-    
+const StockCard = ({ stock, handleDelete }) => {
   return stock ? (
-    <List.Item >
+    <List.Item>
       <List.Icon>
-        <Avatar as={Link} to={`/stock/${stock._id}`}>{stock.name[0].toUpperCase()}</Avatar>
+        <Avatar as={Link} to={`/stock/${stock._id}`}>
+          {stock.name[0].toUpperCase()}
+        </Avatar>
       </List.Icon>
       <List.Content>
-        <List.Header as={Link} to={`/stock/${stock._id}`}>{stock.name.toUpperCase()}</List.Header>
+        <List.Header as={Link} to={`/stock/${stock._id}`}>
+          {stock.name.toUpperCase()}
+        </List.Header>
         <List.Description>CMP: {stock.cmp}</List.Description>
         <List.Description>
           Updated: {moment(stock.updatedAt).fromNow()}

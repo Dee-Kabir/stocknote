@@ -6,7 +6,6 @@ import {
   Form,
   Grid,
   Header,
-
   Input,
   Message,
 } from "semantic-ui-react";
@@ -34,22 +33,30 @@ const Register = () => {
     if (isFormEmpty()) {
       if (ispasswordmatch()) {
         setValue({ ...value, loading: true });
+
         register({ name, email, password }).then((data) => {
-          console.log(data);
-          if (data.error) {
-            setValue({ ...value, error: data.error, loading: false });
-          } else {
+          try {
+            if (data.error) {
+              setValue({ ...value, error: data.error, loading: false });
+            } else {
+              setValue({
+                ...value,
+                name: "",
+                email: "",
+                password: "",
+                error: "",
+                confirmPassword: "",
+                message: data.message,
+                loading: false,
+              });
+              window.location.href = "/login";
+            }
+          } catch {
             setValue({
               ...value,
-              name: "",
-              email: "",
-              password: "",
-              error: "",
-              confirmPassword: "",
-              message: data.message ,
+              error: "Error while connecting to server",
               loading: false,
             });
-            window.location.href = "/login" 
           }
         });
       } else {
@@ -178,14 +185,21 @@ const Register = () => {
               }}
             >
               {" "}
-              Already a user? <Link to="/login" style={{color: 'aliceblue'}}>Login</Link>
+              Already a user?{" "}
+              <Link to="/login" style={{ color: "blue" }}>
+                Login
+              </Link>
             </Message>
             {message ? (
-              <Message success={message?true:false}>{message}</Message>
+              <Message success={message ? true : false}>{message}</Message>
             ) : (
               ""
             )}
-            {error ? <Message error={error?true:false}>{error}</Message> : ""}
+            {error ? (
+              <Message error={error ? true : false}>{error}</Message>
+            ) : (
+              ""
+            )}
           </Grid.Column>
         </Grid.Row>
       </Grid>
@@ -229,7 +243,7 @@ const Register = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
-            background: "#f7fafc"
+            background: "#f7fafc",
           }}
         >
           <div

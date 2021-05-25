@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Button,
@@ -7,13 +7,13 @@ import {
   Form,
   Grid,
   Header,
-
   Input,
 } from "semantic-ui-react";
 import { setCookie, signin } from "../actions/auth";
 import MainFooter from "../Navigations/MainFooter";
+import cookie from "js-cookie";
 
-const Login = () => {
+const Login = (props) => {
   const [value, setValue] = useState({
     email: "",
     password: "",
@@ -22,25 +22,38 @@ const Login = () => {
   });
   const { email, password, loading, error } = value;
   const handleChange = (e) => {
-    setValue({ ...value, [e.target.name]: e.target.value });
+    setValue({ ...value, [e.target.name]: e.target.value, error: "" });
   };
+  useEffect(() => {
+    if (cookie.get("token")) {
+      props.history.push("/");
+    }
+  });
   const handleSubmit = () => {
     if (isFormEmpty) {
       setValue({ ...value, loading: true });
       signin({ email, password }).then((data) => {
-        if (data.error) {
-          setValue({ ...value, error: data.error, loading: false });
-        } else {
-          setCookie('token',data.token);
-          window.localStorage.setItem("auth", JSON.stringify(data));
+        try {
+          if (data.error) {
+            setValue({ ...value, error: data.error, loading: false });
+          } else {
+            setCookie("token", data.token);
+            window.localStorage.setItem("auth", JSON.stringify(data));
+            setValue({
+              ...value,
+              loading: false,
+              email: "",
+              password: "",
+              error: "",
+            });
+            window.location.href = "/";
+          }
+        } catch {
           setValue({
             ...value,
+            error: "Error While connecting to server",
             loading: false,
-            email: "",
-            password: "",
-            error: "",
           });
-          window.location.href = "/"
         }
       });
     } else {
@@ -142,7 +155,10 @@ const Login = () => {
               }}
             >
               {" "}
-              Not registered yet? <Link to="/register" style={{color: 'aliceblue'}}>Register</Link>
+              Not registered yet?{" "}
+              <Link to="/register" style={{ color: "blue" }}>
+                Register
+              </Link>
             </Message>
             {error ? (
               <Message error={error ? true : false}>{error}</Message>
