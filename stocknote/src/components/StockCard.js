@@ -2,8 +2,7 @@ import { Link } from "react-router-dom";
 import Avatar from "antd/lib/avatar/avatar";
 import { List, Button } from "semantic-ui-react";
 import moment from "moment";
-import { removestock } from "../actions/stock";
-import { useState } from "react";
+
 
 const StockCard = ({ stock, handleDelete }) => {
   return stock ? (

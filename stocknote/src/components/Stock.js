@@ -10,7 +10,6 @@ import {
   Header,
   Icon,
   List,
-  Loader,
 } from "semantic-ui-react";
 import { getStock } from "../actions/stock";
 import MainFooter from "../Navigations/MainFooter";
@@ -24,7 +23,7 @@ const Stock = (props) => {
     error: "",
     loading: false,
   });
-  const { stock, error, loading } = value;
+  const { stock, error } = value;
   useEffect(() => {
     const ac = new AbortController();
     loadStock(props.match.params.stockId);

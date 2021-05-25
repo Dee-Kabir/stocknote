@@ -13,7 +13,7 @@ const MyStocks = () => {
     error: "",
     message: "",
   });
-  const { error, message } = value;
+  const { error } = value;
   useEffect(() => {
     loadStocklist();
   }, []);
