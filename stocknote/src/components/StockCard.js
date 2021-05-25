@@ -3,6 +3,10 @@ import Avatar from "antd/lib/avatar/avatar";
 import { List } from "semantic-ui-react";
 import moment from "moment";
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> new
 const StockCard = ({ stock, handleDelete }) => {
   return stock ? (
     <List.Item>

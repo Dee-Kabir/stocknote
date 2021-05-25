@@ -4,10 +4,11 @@ import { Fragment } from "react";
 import MainHeader from "../Navigations/MainHeader";
 import "react-quill/dist/quill.snow.css";
 
-
 import MainFooter from "../Navigations/MainFooter";
-import NewStockForm from './NewStockForm'
+import NewStockForm from "./NewStockForm";
 import { newStock } from "../actions/stock";
+
+import ServiceNotAvailabel from "./errorpage/ServiceNotAvailable";
 const NewNotes = () => {
   const [value, setValue] = useState({
     name: "",
@@ -18,10 +19,10 @@ const NewNotes = () => {
     resistance: "",
     formData: new FormData(),
     show: false,
-    error: '',
-    loading: false
+    error: "",
+    loading: false,
   });
- 
+
   const [preview, setPreview] = useState({
     weeklyPreview: "https://via.placeholder.com/300.png/09f/fff",
     dailyPreview: "https://via.placeholder.com/300.png/09f/fff",
@@ -36,10 +37,9 @@ const NewNotes = () => {
     formData,
     resistanceLevels,
     error,
-    loading
+    loading,
   } = value;
   const fetchnotes = (time) => () => {
- 
     if (typeof window == "undefined") {
       return "";
     }
@@ -64,7 +64,7 @@ const NewNotes = () => {
     }
   };
   const handleChange = (e) => {
-    formData.set([e.target.name], e.target.value)
+    formData.set([e.target.name], e.target.value);
     setValue({ ...value, [e.target.name]: e.target.value });
   };
 
@@ -72,27 +72,24 @@ const NewNotes = () => {
     supportLevels &&
     supportLevels.map((s, i) => (
       <li key={i} style={{ listStyle: "none" }}>
-  
         <label>{s}</label>
       </li>
     ));
   const showResistances = () =>
     resistanceLevels &&
     resistanceLevels.map((r, i) => (
-      
       <li key={i} style={{ listStyle: "none" }}>
-   
         <label>{r}</label>
       </li>
     ));
   const handleLevels = (e) => {
     if (e.key === "Enter") {
-      let supportlist = [...supportLevels]
-      let resistancelist = [...resistanceLevels]
+      let supportlist = [...supportLevels];
+      let resistancelist = [...resistanceLevels];
       if (e.target.name === "support" && support) {
         supportlist.push(support);
         setValue({ ...value, supportLevels: supportlist, support: "" });
-        formData.set('supportLevels',supportlist);
+        formData.set("supportLevels", supportlist);
       } else if (resistance) {
         resistancelist.push(resistance);
         setValue({
@@ -100,7 +97,7 @@ const NewNotes = () => {
           resistanceLevels: resistancelist,
           resistance: "",
         });
-        formData.set('resistanceLevels',resistancelist);
+        formData.set("resistanceLevels", resistancelist);
       }
     }
   };
@@ -124,38 +121,63 @@ const NewNotes = () => {
   const handleClick = (e) => {
     e.preventDefault();
     if (name && cmp) {
-      setValue({...value,loading: true})
-      let token = JSON.parse(window.localStorage.getItem('auth')).token
-      newStock(formData,token).then(data => {
-        if(data.error){
-          console.log(data.error)
-        }else{
-          setValue({...value,loading:false})
-          clearlocalstorage()
-          window.location.href = "/"
+      setValue({ ...value, loading: true });
+      let token = JSON.parse(window.localStorage.getItem("auth")).token;
+      newStock(formData, token).then((data) => {
+        try {
+          if (data.error) {
+            setValue({ ...value, loading: false, error: data.error });
+          } else {
+            setValue({ ...value, loading: false,error: '' });
+            clearlocalstorage();
+            window.location.href = "/";
+          }
+        } catch {
+          setValue({ ...value, error: "Error while connecting to server" });
         }
-      })
-    }else{
-      setValue({...value,error: 'Name and CMP are required'})
+      });
+    } else {
+      setValue({ ...value, error: "Name and CMP are required" });
     }
   };
   const clearlocalstorage = () => {
-    if(window.sessionStorage.getItem('weeklynew')){
-      window.sessionStorage.removeItem('weeklynew')
+    if (window.sessionStorage.getItem("weeklynew")) {
+      window.sessionStorage.removeItem("weeklynew");
     }
-    if( window.sessionStorage.getItem('dailynew')){
-      window.sessionStorage.removeItem('dailynew')
+    if (window.sessionStorage.getItem("dailynew")) {
+      window.sessionStorage.removeItem("dailynew");
     }
-  }
-  
+  };
+
   return (
     <Fragment>
       <MainHeader />
-      <div style={{ marginBottom: "16px" }}>
-      
-
-      <NewStockForm loading={loading} show={false} setLevel = {setLevel} showResistances = {showResistances} showSupports= {showSupports} name = {name} cmp = {cmp} support = {support} resistance = {resistance} bodyWeekly = {bodyWeekly} bodyDaily = {bodyDaily} weeklyPreview = {weeklyPreview} dailyPreview = {dailyPreview} handleChange = {handleChange} handleClick = {handleClick} handleBody = {handleBody} handlePreview = {handlePreview} handleLevels = {handleLevels} />
-      </div>
+      {!error ? (
+        <div style={{ marginBottom: "16px" }}>
+          <NewStockForm
+            loading={loading}
+            show={false}
+            setLevel={setLevel}
+            showResistances={showResistances}
+            showSupports={showSupports}
+            name={name}
+            cmp={cmp}
+            support={support}
+            resistance={resistance}
+            bodyWeekly={bodyWeekly}
+            bodyDaily={bodyDaily}
+            weeklyPreview={weeklyPreview}
+            dailyPreview={dailyPreview}
+            handleChange={handleChange}
+            handleClick={handleClick}
+            handleBody={handleBody}
+            handlePreview={handlePreview}
+            handleLevels={handleLevels}
+          />
+        </div>
+      ) : (
+        <ServiceNotAvailabel error= {error}/>
+      )}
       <div>
         <MainFooter />
       </div>
